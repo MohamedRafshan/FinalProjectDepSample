@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider  = "mongodb"
+  url       = env("DATABASE_URL")
+}
+        
+
+model Store {
+  id        String   @id @default(cuid()) @map("_id")
+  ownerId    String  
+  name        String?
+  disLabel     String?
+  imageUrl    String?
+  address     String?
+  province  String?
+  district  String?
+  area      String?
+  categoryIds   String[]
+  productIds    String[]
+  orderIds    String[]
+  clickCount   Int @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+}
+
+model Seller {
+  id        String   @id @default(cuid())  @map("_id")
+  sellerid  String   @unique
+  name      String
+  imgUrl    String?
+  storeId   String @unique
+  email     String
+  phoneNum  String
+  facebook  String?
+  instagram String?
+  youtube   String?
+  conversationIds String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Product {
+  id        String   @id @default(cuid()) @map("_id")
+  storeId   String
+  name      String
+  description String?
+  price     Float
+  discount  Float?
+  categoryId  String
+  category  Category @relation("CategoryToProduct",fields: [categoryId], references: [id])
+  orderIds  String[]
+  orders    Order[] @relation("OrderToProduct" ,fields: [orderIds], references: [id])
+  reviews  Review[]
+  mainCategory String?
+  imageUrls    Json
+  clickCount  Int @default(0)
+  isDisplay  Boolean @default(false)
+  orderCount  Int @default(0)
+  availableCount Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  }
+
+
+model Category {
+  id        String   @id @default(cuid())  @map("_id")
+  name      String
+  storeId  String?
+  productIds String[]
+  products Product[] @relation("CategoryToProduct")
+  searchCount Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Buyer {
+  id        String   @id @default(cuid())  @map("_id")
+  userId    String @unique
+  name      String
+  imageUrl  String?
+  email     String
+  address   String
+  phoneNum  String
+  province  String
+  district  String
+  area      String
+  orderIds  String[]
+  orders   Order[] @relation("OrderToBuyer")
+  conversationIds String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id        String   @id @default(cuid())  @map("_id")
+  payId     String @unique
+  storeIds   String[]
+  buyerId   String
+  buyer     Buyer? @relation("OrderToBuyer",fields: [buyerId], references: [userId])
+  productIds String[]
+  products  Product[] @relation("OrderToProduct",fields: [productIds], references: [id])
+  price     Float
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Conversation {
+  id        String   @id @default(cuid())  @map("_id")
+  userIds  String[]
+  messageIds  String[]
+  seenIds String[]
+  messages  Message[] @relation("MessageToConversation")
+  startedAt DateTime @default(now())
+  lastMessageAt DateTime @updatedAt
+}
+
+
+model Message {
+  id        String   @id @default(cuid())  @map("_id")
+  conversationId String
+  conversation  Conversation @relation("MessageToConversation",fields: [conversationId], references: [id])
+  senderId  String
+  receiverId String
+  body   String?
+  image  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Review {
+  id        String   @id @default(cuid())  @map("_id")
+  payId     String? 
+  productId String
+  storeId   String
+  buyerId   String
+  rating    Float
+  comment   String?
+  product   Product @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model cart {
+  id        String   @id @default(cuid())  @map("_id")
+  userId    String  @unique
+  productIds String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
