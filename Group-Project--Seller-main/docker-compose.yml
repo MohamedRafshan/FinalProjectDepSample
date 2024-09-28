@@ -1,10 +1,22 @@
-version: '3.8'
+
 
 services:
   web:
-    build: .
+    build: .  # Adjust this to your Next.js app's path
     ports:
       - "3000:3000"
     env_file:
       - .env
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  chat-backend:
+    build: ../ChatSer  # Point to the ChatSer directory
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../ChatSer/.env  # Use a specific .env for the chat backend if needed
+    environment:
+      - NODE_ENV=production
     restart: always
